@@ -1,78 +1,79 @@
 <!DOCTYPE html>
-<html>
+<html lang="fi">
 <head>
-<meta charset="UTF-8">
-<title>Budjettiseuranta</title>
-<style>
-body {
-    font-family: sans-serif;
-    margin: 20px;
-    background-color: #f5f5f5;
-}
-.container {
-    max-width: 500px;
-    margin: 0 auto;
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-}
-input[type="number"], input[type="text"] {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 15px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
-}
-.button-group {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 15px;
-}
-button {
-    padding: 10px 15px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-button:hover {
-    background-color: #0056b3;
-}
-#tulokset {
-    margin-top: 20px;
-    border-top: 1px solid #eee;
-    padding-top: 20px;
-}
-.tulokset-rivi {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 10px;
-}
-.korostus {
-    font-weight: bold;
-    color: #007bff;
-}
-#historia {
-    margin-top: 20px;
-    border-top: 1px solid #eee;
-    padding-top: 20px;
-}
-.historia-item {
-    padding: 8px;
-    border-bottom: 1px solid #eee;
-    display: flex;
-    justify-content: space-between;
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Budjettiseuranta</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="number"], input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #tulokset {
+            margin-top: 20px;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
+        .tulokset-rivi {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .korostus {
+            font-weight: bold;
+            color: #007bff;
+        }
+        #historia {
+            margin-top: 20px;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
+        .historia-item {
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+        }
+    </style>
 </head>
 <body>
 <div class="container">
@@ -81,47 +82,47 @@ button:hover {
     <div id="paiva-info" class="korostus"></div>
 
     <div>
-        <label for="budjetti">K&auml;ytt&ouml;budjetti (&euro;):</label>
-        <input type="number" id="budjetti" placeholder="Sy&ouml;t&auml; budjettisi">
+        <label for="budjetti">Käyttöbudjetti (€):</label>
+        <input type="number" id="budjetti" placeholder="Syötä budjettisi">
     </div>
 
     <div>
-        <label for="uusi-kaytto">Uusi k&auml;ytt&ouml; (&euro;):</label>
-        <input type="number" id="uusi-kaytto" placeholder="Sy&ouml;t&auml; k&auml;ytetty summa">
+        <label for="uusi-kaytto">Uusi käyttö (€):</label>
+        <input type="number" id="uusi-kaytto" placeholder="Syötä käytetty summa">
     </div>
 
     <div class="button-group">
-        <button onclick="paivitaBudjetti()">P&auml;ivit&auml; budjetti</button>
-        <button onclick="merkkaaKaytto()">Merkitse k&auml;ytt&ouml;</button>
+        <button onclick="paivitaBudjetti()">Päivitä budjetti</button>
+        <button onclick="merkkaaKaytto()">Merkitse käyttö</button>
         <button onclick="nollaaTiedot()">Nollaa tiedot</button>
     </div>
 
     <div id="tulokset">
         <h2>Yhteenveto</h2>
         <div class="tulokset-rivi">
-            <span>Alkuper&auml;inen budjetti:</span>
-            <span id="alkuperainen-budjetti" class="korostus">0.00 &euro;</span>
+            <span>Alkuperäinen budjetti:</span>
+            <span id="alkuperainen-budjetti" class="korostus">0.00 €</span>
         </div>
         <div class="tulokset-rivi">
-            <span>K&auml;ytetty yhteens&auml;:</span>
-            <span id="kaytto-yhteensa" class="korostus">0.00 &euro;</span>
+            <span>Käytetty yhteensä:</span>
+            <span id="kaytto-yhteensa" class="korostus">0.00 €</span>
         </div>
         <div class="tulokset-rivi">
-            <span>Rahaa j&auml;ljell&auml;:</span>
-            <span id="jaljella-euroa" class="korostus">0.00 &euro;</span>
+            <span>Rahaa jäljellä:</span>
+            <span id="jaljella-euroa" class="korostus">0.00 €</span>
         </div>
         <div class="tulokset-rivi">
-            <span>K&auml;ytett&auml;viss&auml; per p&auml;iv&auml;:</span>
-            <span id="euroa-paiva" class="korostus">0.00 &euro;</span>
+            <span>Käytettävissä per päivä:</span>
+            <span id="euroa-paiva" class="korostus">0.00 €</span>
         </div>
         <div class="tulokset-rivi">
-            <span>K&auml;ytett&auml;viss&auml; per viikko:</span>
-            <span id="euroa-viikko" class="korostus">0.00 &euro;</span>
+            <span>Käytettävissä per viikko:</span>
+            <span id="euroa-viikko" class="korostus">0.00 €</span>
         </div>
     </div>
 
     <div id="historia">
-        <h2>K&auml;ytt&ouml;historia</h2>
+        <h2>Käyttöhistoria</h2>
         <div id="historia-lista"></div>
     </div>
 </div>
@@ -139,15 +140,15 @@ function naytaPaivaInfo() {
     const paivia = laskePaivatJaljella();
     const nykyinenPaiva = new Date().toLocaleDateString('fi-FI');
     const paivaInfoElementti = document.getElementById('paiva-info');
-    paivaInfoElementti.textContent = `T\u00e4n\u00e4\u00e4n on ${nykyinenPaiva}. Aikaa 31.8.2025 asti on ${paivia} p\u00e4iv\u00e4\u00e4.`;
+    paivaInfoElementti.textContent = "Tänään on " + nykyinenPaiva + ". Aikaa 31.8.2025 asti on " + paivia + " päivää.";
 }
 
 function naytaTulokset(alkuperainen, kayttoYhteensa, jaljella, paiva, viikko) {
-    document.getElementById('alkuperainen-budjetti').textContent = `${alkuperainen.toFixed(2)} \u20ac`;
-    document.getElementById('kaytto-yhteensa').textContent = `${kayttoYhteensa.toFixed(2)} \u20ac`;
-    document.getElementById('jaljella-euroa').textContent = `${jaljella.toFixed(2)} \u20ac`;
-    document.getElementById('euroa-paiva').textContent = `${paiva.toFixed(2)} \u20ac`;
-    document.getElementById('euroa-viikko').textContent = `${viikko.toFixed(2)} \u20ac`;
+    document.getElementById('alkuperainen-budjetti').textContent = alkuperainen.toFixed(2) + " €";
+    document.getElementById('kaytto-yhteensa').textContent = kayttoYhteensa.toFixed(2) + " €";
+    document.getElementById('jaljella-euroa').textContent = jaljella.toFixed(2) + " €";
+    document.getElementById('euroa-paiva').textContent = paiva.toFixed(2) + " €";
+    document.getElementById('euroa-viikko').textContent = viikko.toFixed(2) + " €";
 }
 
 function paivitaBudjetti() {
@@ -182,7 +183,7 @@ function merkkaaKaytto() {
     const kaytettySumma = parseFloat(kaytettySummaInput.value);
     
     if (isNaN(kaytettySumma) || kaytettySumma <= 0) {
-        alert('Sy\u00f6t\u00e4 positiivinen summa!');
+        alert('Syötä positiivinen summa!');
         return;
     }
 
@@ -210,18 +211,17 @@ function paivitaHistoriaNakyma() {
     historiaLista.innerHTML = '';
     
     if (historia.length === 0) {
-        historiaLista.innerHTML = '<p>Ei viel\u00e4 merkint\u00f6j\u00e4</p>';
+        historiaLista.innerHTML = '<p>Ei vielä merkintöjä</p>';
         return;
     }
     
     historia.reverse().forEach((merkinta, index) => {
         const item = document.createElement('div');
         item.className = 'historia-item';
-        item.innerHTML = `
-            <span>${merkinta.paiva}</span>
-            <span>${merkinta.summa.toFixed(2)} \u20ac</span>
-            <button onclick="poistaMerkinta(${historia.length - 1 - index})">Poista</button>
-        `;
+        item.innerHTML = 
+            '<span>' + merkinta.paiva + '</span>' +
+            '<span>' + merkinta.summa.toFixed(2) + ' €</span>' +
+            '<button onclick="poistaMerkinta(' + (historia.length - 1 - index) + ')">Poista</button>';
         historiaLista.appendChild(item);
     });
 }
