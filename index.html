@@ -23,7 +23,7 @@
             margin-bottom: 5px;
             font-weight: bold;
         }
-        input[type="number"], input[type="text"] {
+        input[type="number"], input[type="text"], input[type="date"] { /* Lisätty input[type="date"] */
             width: 100%;
             padding: 10px;
             margin-bottom: 15px;
@@ -31,14 +31,15 @@
             border-radius: 4px;
             box-sizing: border-box;
         }
-        .button-group {
-            display: flex;
-            gap: 10px;
+        .button-container { /* Uusi luokka nappien ympärille */
             margin-bottom: 15px;
         }
+        .button-cell { /* Uusi luokka yksittäiselle napille/solulle */
+            margin-bottom: 10px; /* Väliä solujen välille */
+        }
         button {
+            width: 100%; /* Nappi täyttää solun leveyden */
             padding: 10px 15px;
-            background-color: #007bff;
             color: white;
             border: none;
             border-radius: 4px;
@@ -46,6 +47,25 @@
             transition: background-color 0.2s;
         }
         button:hover {
+            opacity: 0.9;
+        }
+        #paivita-budjetti-nappi { /* ID Päivitä budjetti -napille */
+            background-color: #28a745; /* Vihreä */
+        }
+        #paivita-budjetti-nappi:hover {
+            background-color: #218838;
+        }
+        #merkitse-kaytto-nappi { /* ID Merkitse käyttö -napille */
+            background-color: #ffc107; /* Keltainen/Oranssi */
+            color: #212529; /* Tummempi teksti parempaan kontrastiin */
+        }
+        #merkitse-kaytto-nappi:hover {
+            background-color: #e0a800;
+        }
+        #nollaa-tiedot-nappi { /* ID Nollaa tiedot -napille */
+            background-color: #007bff; /* Sininen */
+        }
+        #nollaa-tiedot-nappi:hover {
             background-color: #0056b3;
         }
         #tulokset {
@@ -72,6 +92,15 @@
             border-bottom: 1px solid #eee;
             display: flex;
             justify-content: space-between;
+            align-items: center; /* Kohdistetaan poista-nappi paremmin */
+        }
+        .historia-item button { /* Tyyli poista-napille historiassa */
+            width: auto; /* Ei täytä koko leveyttä */
+            padding: 5px 10px;
+            background-color: #dc3545; /* Punainen */
+        }
+        .historia-item button:hover {
+            background-color: #c82333;
         }
     </style>
 </head>
@@ -82,8 +111,19 @@
     <div id="paiva-info" class="korostus"></div>
 
     <div>
+        <label for="tavoite-paiva">Tavoitepäivämäärä:</label>
+        <input type="date" id="tavoite-paiva">
+    </div>
+
+    <div>
         <label for="budjetti">Käyttöbudjetti (€):</label>
         <input type="number" id="budjetti" placeholder="Syötä budjettisi">
+    </div>
+
+    <div class="button-container">
+        <div class="button-cell">
+            <button id="paivita-budjetti-nappi" onclick="paivitaBudjetti()">Päivitä budjetti</button>
+        </div>
     </div>
 
     <div>
@@ -91,11 +131,18 @@
         <input type="number" id="uusi-kaytto" placeholder="Syötä käytetty summa">
     </div>
 
-    <div class="button-group">
-        <button onclick="paivitaBudjetti()">Päivitä budjetti</button>
-        <button onclick="merkkaaKaytto()">Merkitse käyttö</button>
-        <button onclick="nollaaTiedot()">Nollaa tiedot</button>
+    <div class="button-container">
+         <div class="button-cell">
+            <button id="merkitse-kaytto-nappi" onclick="merkkaaKaytto()">Merkitse käyttö</button>
+        </div>
     </div>
+
+    <div class="button-container">
+        <div class="button-cell">
+            <button id="nollaa-tiedot-nappi" onclick="nollaaTiedot()">Nollaa tiedot</button>
+        </div>
+    </div>
+
 
     <div id="tulokset">
         <h2>Yhteenveto</h2>
@@ -128,9 +175,36 @@
 </div>
 
 <script>
+const DEFAULT_TARGET_DATE = '2025-12-31'; // Oletus tavoitepäivä (YYYY-MM-DD)
+
+function getTargetDate() {
+    const dateInput = document.getElementById('tavoite-paiva');
+    const storedDate = localStorage.getItem('tavoitePaiva');
+
+    let dateToUse = '';
+
+    if (dateInput.value) { // Jos käyttäjä on syöttänyt päivän tällä sessiolla
+        dateToUse = dateInput.value;
+    } else if (storedDate) { // Jos päivä on tallennettu aiemmin
+        dateToUse = storedDate;
+        dateInput.value = storedDate; // Asetetaan se input-kenttään näkyville
+    } else { // Jos mitään ei ole asetettu, käytä oletusta
+        dateToUse = DEFAULT_TARGET_DATE;
+        dateInput.value = DEFAULT_TARGET_DATE;
+    }
+    localStorage.setItem('tavoitePaiva', dateToUse); // Tallenna aina käytetty/päivitetty arvo
+    return new Date(dateToUse + 'T23:59:59'); // Lisätään kellonaika päivän loppuun tarkkaa laskentaa varten
+}
+
 function laskePaivatJaljella() {
     const nyt = new Date();
-    const tavoitePaiva = new Date('2025-08-31T23:59:59');
+    const tavoitePaiva = getTargetDate();
+
+    if (isNaN(tavoitePaiva.getTime())) {
+        console.error("Virheellinen tavoitepäivämäärä:", document.getElementById('tavoite-paiva').value);
+        return 0; // Palauta 0, jos päivämäärä on virheellinen
+    }
+
     const aikaEroMs = tavoitePaiva.getTime() - nyt.getTime();
     const paiviaJaljella = Math.ceil(aikaEroMs / (1000 * 60 * 60 * 24));
     return paiviaJaljella > 0 ? paiviaJaljella : 0;
@@ -140,7 +214,14 @@ function naytaPaivaInfo() {
     const paivia = laskePaivatJaljella();
     const nykyinenPaiva = new Date().toLocaleDateString('fi-FI');
     const paivaInfoElementti = document.getElementById('paiva-info');
-    paivaInfoElementti.textContent = "Tänään on " + nykyinenPaiva + ". Aikaa 31.8.2025 asti on " + paivia + " päivää.";
+    const tavoitePaivaObj = getTargetDate(); // Kutsu uudelleen varmistaaksesi, että input on synkassa
+
+    if (isNaN(tavoitePaivaObj.getTime())) {
+        paivaInfoElementti.textContent = "Tänään on " + nykyinenPaiva + ". Aseta kelvollinen tavoitepäivämäärä.";
+        return;
+    }
+    const tavoitePaivaString = new Date(document.getElementById('tavoite-paiva').value + 'T00:00:00').toLocaleDateString('fi-FI'); // Näytä ilman kellonaikaa
+    paivaInfoElementti.textContent = "Tänään on " + nykyinenPaiva + ". Aikaa " + tavoitePaivaString + " asti on " + paivia + " päivää.";
 }
 
 function naytaTulokset(alkuperainen, kayttoYhteensa, jaljella, paiva, viikko) {
@@ -152,19 +233,20 @@ function naytaTulokset(alkuperainen, kayttoYhteensa, jaljella, paiva, viikko) {
 }
 
 function paivitaBudjetti() {
+    // Varmistetaan, että tavoitepäivä on luettu ja mahdollisesti päivitetty localStorageen
+    // getTargetDate() kutsu päivittää inputin ja localStoragen tarvittaessa.
+    // Ei tarvitse erillistä kutsua, koska laskePaivatJaljella ja naytaPaivaInfo kutsuvat sitä.
+
     const budjettiInput = document.getElementById('budjetti');
     const budjetti = parseFloat(budjettiInput.value) || 0;
-    const paiviaJaljella = laskePaivatJaljella();
+    const paiviaJaljella = laskePaivatJaljella(); // Tämä kutsuu getTargetDate()
     
-    // Tallenna alkuperäinen budjetti
     localStorage.setItem('budjetti', budjetti);
     
-    // Hae käyttöhistoria
     const historia = getHistoria();
     const kayttoYhteensa = historia.reduce((summa, item) => summa + item.summa, 0);
     
-    // Tallenna yhteenlaskettu käyttö
-    localStorage.setItem('kayttoYhteensa', kayttoYhteensa);
+    // Ei tarvitse tallentaa kayttoYhteensa localStorageen, se lasketaan aina historiasta
     
     if (paiviaJaljella > 0) {
         const jaljella = budjetti - kayttoYhteensa;
@@ -175,6 +257,7 @@ function paivitaBudjetti() {
         naytaTulokset(budjetti, kayttoYhteensa, budjetti - kayttoYhteensa, 0, 0);
     }
     
+    naytaPaivaInfo(); // Päivitetään myös päiväinfo
     paivitaHistoriaNakyma();
 }
 
@@ -183,11 +266,10 @@ function merkkaaKaytto() {
     const kaytettySumma = parseFloat(kaytettySummaInput.value);
     
     if (isNaN(kaytettySumma) || kaytettySumma <= 0) {
-        alert('Syötä positiivinen summa!');
+        alert('Syötä kelvollinen positiivinen summa!');
         return;
     }
 
-    // Tallenna käyttö historiaan
     const historia = getHistoria();
     historia.push({
         paiva: new Date().toLocaleDateString('fi-FI'),
@@ -195,9 +277,9 @@ function merkkaaKaytto() {
     });
     
     localStorage.setItem('historia', JSON.stringify(historia));
-    kaytettySummaInput.value = ''; // Tyhjennetään kenttä
+    kaytettySummaInput.value = ''; 
     
-    paivitaBudjetti(); // Päivitetään tulokset
+    paivitaBudjetti(); 
 }
 
 function getHistoria() {
@@ -211,51 +293,77 @@ function paivitaHistoriaNakyma() {
     historiaLista.innerHTML = '';
     
     if (historia.length === 0) {
-        historiaLista.innerHTML = '<p>Ei vielä merkintöjä</p>';
+        historiaLista.innerHTML = '<p>Ei vielä käyttömerkintöjä.</p>';
         return;
     }
     
-    historia.reverse().forEach((merkinta, index) => {
+    const kaannettyHistoria = [...historia].reverse(); // Luodaan kopio ja käännetään se näyttämistä varten
+    kaannettyHistoria.forEach((merkinta, kaannettyIndex) => {
+        const alkuperainenIndex = historia.length - 1 - kaannettyIndex;
         const item = document.createElement('div');
         item.className = 'historia-item';
         item.innerHTML = 
             '<span>' + merkinta.paiva + '</span>' +
             '<span>' + merkinta.summa.toFixed(2) + ' €</span>' +
-            '<button onclick="poistaMerkinta(' + (historia.length - 1 - index) + ')">Poista</button>';
+            '<button onclick="poistaMerkinta(' + alkuperainenIndex + ')">Poista</button>';
         historiaLista.appendChild(item);
     });
 }
 
 function poistaMerkinta(index) {
-    const historia = getHistoria();
-    historia.splice(index, 1);
-    localStorage.setItem('historia', JSON.stringify(historia));
-    paivitaBudjetti();
+    // Varmistus ennen poistoa
+    if (confirm('Haluatko varmasti poistaa tämän merkinnän käyttöhistoriasta?')) {
+        const historia = getHistoria();
+        historia.splice(index, 1); // Poistetaan merkintä alkuperäisestä indeksistä
+        localStorage.setItem('historia', JSON.stringify(historia));
+        paivitaBudjetti(); // Päivitetään näkymä
+    }
 }
 
 function nollaaTiedot() {
-    if (confirm('Haluatko varmasti nollata kaikki tiedot?')) {
+    if (confirm('Haluatko varmasti nollata kaikki syötetyt tiedot (budjetti, käyttöhistoria ja tavoitepäivä)?')) {
         localStorage.removeItem('budjetti');
-        localStorage.removeItem('kayttoYhteensa');
         localStorage.removeItem('historia');
+        localStorage.removeItem('tavoitePaiva'); 
+        
         document.getElementById('budjetti').value = '';
         document.getElementById('uusi-kaytto').value = '';
-        lataaTiedot();
+        document.getElementById('tavoite-paiva').value = DEFAULT_TARGET_DATE; // Palauta oletuspäivä myös inputtiin
+        
+        lataaTiedot(); // Lataa ja päivittää näkymän (asettaa oletukset)
     }
 }
 
 function lataaTiedot() {
     const tallennettuBudjetti = localStorage.getItem('budjetti');
-    
     if (tallennettuBudjetti !== null) {
         document.getElementById('budjetti').value = tallennettuBudjetti;
     }
     
-    naytaPaivaInfo();
-    paivitaBudjetti(); // Näytetään heti tiedot latauksen yhteydessä
+    // Tavoitepäivän käsittely: getTargetDate huolehtii lataamisesta/oletuksesta ja inputin päivityksestä
+    // Se kutsutaan naytaPaivaInfo ja paivitaBudjetti -funktioiden kautta.
+    // Varmistetaan, että tavoite-paiva-input päivittyy oikein heti alussa.
+    const dateInput = document.getElementById('tavoite-paiva');
+    const storedDate = localStorage.getItem('tavoitePaiva');
+    if (storedDate) {
+        dateInput.value = storedDate;
+    } else {
+        dateInput.value = DEFAULT_TARGET_DATE;
+        // Ei tarvitse tallentaa localStorageen tässä, getTargetDate hoitaa sen tarvittaessa
+    }
+
+    naytaPaivaInfo(); // Näyttää päiväinfon, joka kutsuu getTargetDate()
+    paivitaBudjetti(); // Laskee ja näyttää budjettitiedot, joka myös kutsuu getTargetDate() (laskePaivatJaljella kautta)
 }
 
-// Käynnistä sovellus
+// Tapahtumankuuntelija tavoitepäivän muutokselle
+document.getElementById('tavoite-paiva').addEventListener('change', function() {
+    localStorage.setItem('tavoitePaiva', this.value); // Tallenna uusi arvo heti
+    naytaPaivaInfo(); // Päivitä infoteksti
+    paivitaBudjetti(); // Päivitä laskelmat
+});
+
+// Käynnistä sovellus lataamalla tiedot ja näyttämällä ne
 lataaTiedot();
 </script>
 
